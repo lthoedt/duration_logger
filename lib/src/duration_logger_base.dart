@@ -1,5 +1,6 @@
 /// This class is used to log the time taken by different actions in a class.
 class DurationLogger {
+  final bool keepLogs;
   final Map<String, ({int start, int? end})> actionLogs = {};
   final stopwatch = Stopwatch();
 
@@ -7,7 +8,9 @@ class DurationLogger {
 
   int? previousEndTime;
 
-  DurationLogger() {
+  DurationLogger({
+    this.keepLogs = false,
+  }) {
     stopwatch.start();
   }
 
@@ -56,13 +59,19 @@ class DurationLogger {
     timeLogs.add(
       "Action: '$action', started: [T = $startTime ms], ended: [T = $endTime ms], duration: $duration ms",
     );
-    actionLogs.remove(action);
+    if (!keepLogs) actionLogs.remove(action);
     previousEndTime = endTime;
   }
 
   String done() {
     stopwatch.stop();
     return '\n${timeLogs.join("\n")}';
+  }
+
+  Duration? getDurationOfAction(String action) {
+    final log = actionLogs[action];
+    if (log == null) return null;
+    return Duration(milliseconds: log.end! - log.start);
   }
 }
 
